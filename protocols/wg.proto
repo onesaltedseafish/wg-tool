@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package protocol;
+
+// 定义编译出来的go package
+option go_package = "github.com/onesaltedseafish/wg-tool/protocol";
+
+// 定义Wireguard管理需要使用的接口
+service WireguardTool {
+    rpc RegisterPeer(RegisterPeerReq) returns (RegisterPeerRsp){}
+    rpc UnregisterPeer(UnregisterPeerReq) returns (EmptyRsp){}
+}
+
+message EmptyRsp{}
+
+// 定义如何注册一个Peer节点
+message RegisterPeerReq {
+    // 节点名
+    string peer_name  = 1;
+    // 节点类型
+    PeerType peer_type = 2;
+    // 子网地址
+    repeated CidrAddress sub_nets = 3;
+}
+
+// 定义节点返回的信息
+message RegisterPeerRsp {
+    // 节点公钥
+    string pubkey = 1;
+    // 节点私钥
+    string prikey = 2;
+    // 节点地址
+    CidrAddress address = 3; 
+    // 中继节点信息
+    RelayPeerInfo relay_peer_info = 4;
+}
+
+// 定义Wireguard peer类型
+// 指的注意的是，这个类型是我们定义的， 并不代表着wireguard存在这种类型抽象
+enum PeerType {
+    Unknown = 0;
+    // 点对点类型
+    P2P = 1;
+    // 子网类型
+    SubNet = 2;
+}
+
+message CidrAddress {
+    string address = 1;
+}
+
+// 中继节点信息
+message RelayPeerInfo {
+    // Relay peer的端点信息
+    string endpoint = 1;
+    // 公钥
+    string pubkey = 2;
+}
+
+// 定义如何注册一个Peer节点
+message UnregisterPeerReq {
+    // 节点名
+    string peer_name  = 1;
+}
