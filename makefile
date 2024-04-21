@@ -15,6 +15,9 @@ build:
 	mkdir -p bin
 	go build -o bin ./cmd/...
 
+test:
+	go test -v ./...
+
 # 编译pb文件生成桩代码
 pb: $(GO_FILES) $(GRPC_GO_FILES)
 
