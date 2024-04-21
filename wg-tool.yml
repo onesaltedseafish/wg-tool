@@ -1,0 +1,4 @@
+token: "you should change me"
+sqlite: "./wg-tool.db"
+log_level: "info" # can be "debug", "info", "warn", "error"
+log_dir: "/var/log" 
