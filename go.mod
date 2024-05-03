@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/go-playground/validator/v10 v10.19.0
-	github.com/onesaltedseafish/go-utils v0.0.0-20240428051028-21e40c0224e8
+	github.com/onesaltedseafish/go-utils v0.0.0-20240503165644-3192183c7ab0
 	github.com/samber/lo v1.39.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0

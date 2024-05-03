@@ -2,10 +2,10 @@ package models
 
 import (
 	"errors"
-	"log"
 	"net"
 	"time"
 
+	"github.com/onesaltedseafish/go-utils/simulate/dhcp"
 	"github.com/onesaltedseafish/wg-tool/commons/inet"
 	"gorm.io/gorm"
 )
@@ -20,6 +20,8 @@ type DhcpClient struct {
 	Enable       bool             `gorm:"column:enable"`  // 是否启用
 	EnableTime   time.Time        // 启用的时间
 }
+
+var _ dhcp.Storage = (*DhcpStorage)(nil)
 
 // DhcpStorage implements for dhcp.Storage
 type DhcpStorage struct {
@@ -38,39 +40,48 @@ func NewDHCPStorage(db *gorm.DB, cidr inet.CidrAddress) *DhcpStorage {
 // GetAddressWithMAC if storage has a record of hardwareAddr
 // then return the related ip address
 // else return nil
-func (s *DhcpStorage) GetAddressWithMAC(mac net.HardwareAddr) net.IP {
+func (s *DhcpStorage) GetAddressWithMAC(mac net.HardwareAddr) (net.IP, error) {
 	record := DhcpClient{HardwareAddr: mac}
-	s.db.Model(DhcpClient{}).Where(&record).First(&record)
-	if record.ID != 0 {
-		return net.IP(record.Address)
+	err := s.db.Model(DhcpClient{}).Where(&record).First(&record).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = nil
 	}
-	return nil
+	if record.ID != 0 {
+		return net.IP(record.Address), err
+	}
+	return nil, err
 }
 
 // GetOneUnusedAddress finds the first unused record
-func (s *DhcpStorage) GetOneUnusedAddress() net.IP {
+func (s *DhcpStorage) GetOneUnusedAddress() (net.IP, error) {
 	var record DhcpClient
-	s.db.Model(DhcpClient{}).Where("enable = ? and cidr = ?", false, s.cidr).First(&record)
-	if record.ID != 0 {
-		return net.IP(record.Address)
+	err := s.db.Model(DhcpClient{}).Where("enable = ? and cidr = ?", false, s.cidr).First(&record).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = nil
 	}
-	return nil
+	if record.ID != 0 {
+		return net.IP(record.Address), err
+	}
+	return nil, err
 }
 
 // GetLastAddress finds the last used ip address
-func (s *DhcpStorage) GetLastAddress() net.IP {
+func (s *DhcpStorage) GetLastAddress() (net.IP, error) {
 	record := DhcpClient{
 		CIDR: s.cidr,
 	}
-	s.db.Model(DhcpClient{}).Where(&record).Last(&record)
-	if record.ID != 0 {
-		return net.IP(record.Address)
+	err := s.db.Model(DhcpClient{}).Where(&record).Last(&record).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = nil
 	}
-	return s.cidr.GetNetwork().IP
+	if record.ID != 0 {
+		return net.IP(record.Address), err
+	}
+	return s.cidr.GetNetwork().IP, err
 }
 
 // SetAddressWithMAC sets record with ip address and MAC address
-func (s *DhcpStorage) SetAddressWithMAC(ip net.IP, mac net.HardwareAddr) {
+func (s *DhcpStorage) SetAddressWithMAC(ip net.IP, mac net.HardwareAddr) error {
 	record := DhcpClient{
 		CIDR:    s.cidr,
 		Address: inet.IpAddress(ip),
@@ -81,24 +92,22 @@ func (s *DhcpStorage) SetAddressWithMAC(ip net.IP, mac net.HardwareAddr) {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 新增
-			s.db.Create(&DhcpClient{
+			return s.db.Create(&DhcpClient{
 				CIDR:         s.cidr,
 				Enable:       true,
 				HardwareAddr: mac,
 				Address:      inet.IpAddress(ip),
 				EnableTime:   time.Now(),
-			})
-			return
-		} else {
-			log.Fatalf("err: %v, record: %v", err, record)
+			}).Error
 		}
+		return err
 	}
 	// 修改
-	s.db.Model(&record).Updates(DhcpClient{
+	return s.db.Model(&record).Updates(DhcpClient{
 		HardwareAddr: mac,
 		Enable:       true,
 		EnableTime:   time.Now(),
-	})
+	}).Error
 }
 
 // ReleaseAddress release the address
@@ -108,19 +117,25 @@ func (s *DhcpStorage) ReleaseAddress(ip net.IP) error {
 		Address: inet.IpAddress(ip),
 	}
 	if err := s.db.Where(&record).First(&record).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
 		return err
 	}
 	return s.db.Model(&record).Update("enable", false).Error
 }
 
 // IsUsed judge the ip address is used or not
-func (s *DhcpStorage) IsUsed(ip net.IP) bool {
+func (s *DhcpStorage) IsUsed(ip net.IP) (bool, error) {
 	record := DhcpClient{
 		CIDR:    s.cidr,
 		Address: inet.IpAddress(ip),
 	}
 	if err := s.db.Where(&record).First(&record).Error; err != nil {
-		return false
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+		return false, err
 	}
-	return record.Enable
+	return record.Enable, nil
 }

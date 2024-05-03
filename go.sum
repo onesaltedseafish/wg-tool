@@ -61,8 +61,8 @@ github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyua
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/natefinch/lumberjack v2.0.0+incompatible h1:4QJd3OLAMgj7ph+yZTuX13Ld4UpgHp07nNdFX7mqFfM=
 github.com/natefinch/lumberjack v2.0.0+incompatible/go.mod h1:Wi9p2TTF5DG5oU+6YfsmYQpsTIOm0B1VNzQg9Mw6nPk=
-github.com/onesaltedseafish/go-utils v0.0.0-20240428051028-21e40c0224e8 h1:COmG9kuL7o/oEJwdjp1rrPibn66b8WcpDRM7sIVv9to=
-github.com/onesaltedseafish/go-utils v0.0.0-20240428051028-21e40c0224e8/go.mod h1:PmWp9hwyQP4Lry+BI6I+xkC2jVjN/o8EtITAKGtkmhQ=
+github.com/onesaltedseafish/go-utils v0.0.0-20240503165644-3192183c7ab0 h1:/EYhuIPjzYb8yoDefcbpJOc7UW6S0N0XtHsNcXG7M/w=
+github.com/onesaltedseafish/go-utils v0.0.0-20240503165644-3192183c7ab0/go.mod h1:PmWp9hwyQP4Lry+BI6I+xkC2jVjN/o8EtITAKGtkmhQ=
 github.com/pelletier/go-toml/v2 v2.1.0 h1:FnwAJ4oYMvbT/34k9zzHuZNrhlz48GB3/s6at6/MHO4=
 github.com/pelletier/go-toml/v2 v2.1.0/go.mod h1:tJU2Z3ZkXwnxa4DPO899bsyIoywizdUvyaeZurnPPDc=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
