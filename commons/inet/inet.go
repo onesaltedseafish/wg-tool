@@ -18,6 +18,52 @@ var _ driver.Valuer = (*CidrAddress)(nil)
 var _ sql.Scanner = (*SubnetAddresses)(nil)
 var _ driver.Valuer = (*SubnetAddresses)(nil)
 
+// IpAddress IP 地址
+type IpAddress net.IP
+
+// ParseIpAddressFromString 从字符中初始化 IP
+func ParseIpAddressFromString(s string) *IpAddress {
+	ip := net.ParseIP(s)
+	if ip == nil {
+		return nil
+	}
+	return (*IpAddress)(&ip)
+}
+
+// String to string
+func (ip IpAddress) String() string {
+	return (net.IP)(ip).String()
+}
+
+// Scan 实现 sql.Scanner 接口，Scan 将 value 扫描至
+func (addr *IpAddress) Scan(value any) (err error) {
+	if value == nil {
+		*addr = nil
+		return nil
+	}
+	switch v := value.(type) {
+	case string:
+		*addr = (IpAddress)(net.ParseIP(v))
+	default:
+		return fmt.Errorf("无法将值转换为IpAddress类型")
+	}
+
+	return nil
+}
+
+// Value 实现 driver.Valuer 接口
+func (ip IpAddress) Value() (driver.Value, error) {
+	if ip == nil {
+		return nil, nil
+	}
+
+	return ip.String(), nil
+}
+
+func (ip IpAddress) GormDataType() string {
+	return "string"
+}
+
 // CidrAddress CIDR地址
 type CidrAddress struct {
 	address net.IP    // 主机地址

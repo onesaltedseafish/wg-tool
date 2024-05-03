@@ -30,9 +30,15 @@ pb: $(GO_FILES) $(GRPC_GO_FILES)
 	$(PROTOC) --proto_path=$(PROTO_DIR) --go-grpc_out=$(GO_OUT_DIR) --go-grpc_opt=paths=source_relative $<
 
 # 清理生成的文件
-clean:
+clean: clean-test
 	rm -f $(GO_FILES) $(GRPC_GO_FILES)
 	rm -f certs/*
+	
+# 清理测试可能带来的日志、sqlite 等
+clean-test:
+	find . -type f -name "*.log" | xargs rm -f
+	find . -type f -name "*.db" | xargs rm -f
+	find . -type f -name "*.sqlite" | xargs rm -f
 
 # 生成临时使用的自签名证书
 cert:

@@ -27,3 +27,6 @@ go.work
 # database
 *.sqlite
 *.db
+
+# certs
+certs/*

@@ -34,3 +34,16 @@ func TestCidrAddress2NetlinkAddr(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.Equal(t, netlinkAddr.String(), cidrAddr.ToNetlinkAddr().String())
 }
+
+func TestParseIpAddressFromString(t *testing.T){
+	testcases := []struct{
+		Ori string
+		Want string
+	}{
+		{"192.168.1.1", "192.168.1.1"},
+	}
+
+	for _, testcase := range testcases {
+		assert.Equal(t, testcase.Want, ParseIpAddressFromString(testcase.Ori).String())
+	}
+}
